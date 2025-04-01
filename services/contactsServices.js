@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { nanoid } from 'nanoid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,7 +27,7 @@ async function getContactById(contactId) {
 async function addContact(name, email, phone) {
   const contacts = await listContacts();
   const newContact = {
-    id: Date.now().toString(),
+    id: nanoid(),
     name,
     email,
     phone,
