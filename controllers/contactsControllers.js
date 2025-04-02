@@ -11,7 +11,7 @@ export const getOneContact = ctrlWrapper(async (req, res) => {
   const { id } = req.params;
   const data = await contactsService.getContactById(id);
   if (!data) {
-    throw HttpError(404, `Contact with id=${id} not found`);
+    throw HttpError(404, 'Not found');
   }
   res.json(data);
 });
@@ -25,7 +25,7 @@ export const updateContact = ctrlWrapper(async (req, res) => {
   const { id } = req.params;
   const data = await contactsService.updateContacts(id, req.body);
   if (!data) {
-    throw HttpError(404, `Contact with id=${id} not found`);
+    throw HttpError(404, 'Not found');
   }
   res.json(data);
 });
@@ -33,8 +33,10 @@ export const updateContact = ctrlWrapper(async (req, res) => {
 export const deleteContact = ctrlWrapper(async (req, res) => {
   const { id } = req.params;
   const data = await contactsService.removeContact(id);
+
   if (!data) {
-    throw HttpError(404, `Contact with id=${id} not found`);
+    throw HttpError(404, 'Not found');
   }
-  res.status(204).send();
+
+  res.status(200).json(data);
 });

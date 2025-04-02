@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const contactsPath = path.join(__dirname, 'db', 'contacts.json');
+const contactsPath = path.join(__dirname, '..', 'db', 'contacts.json');
 
 async function listContacts() {
   try {
@@ -24,13 +24,11 @@ async function getContactById(contactId) {
   return contact || null;
 }
 
-async function addContact(name, email, phone) {
+async function addContact(data) {
   const contacts = await listContacts();
   const newContact = {
     id: nanoid(),
-    name,
-    email,
-    phone,
+    ...data,
   };
 
   contacts.push(newContact);
@@ -38,8 +36,16 @@ async function addContact(name, email, phone) {
   return newContact;
 }
 
-async function updateContacts(contacts) {
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
+async function updateContacts(id, data) {
+  const contacts = await listContacts();
+  const index = contacts.findIndex(item => item.id === id);
+  if (index === -1) return null;
+
+  contacts[index] = { ...contacts[index], ...data };
+
+  await updateContacts(contacts);
+
+  return contacts[index];
 }
 
 async function removeContact(contactId) {
