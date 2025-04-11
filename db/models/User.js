@@ -21,8 +21,17 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  subscription: {
+    type: DataTypes.ENUM,
+    values: ['starter', 'pro', 'business'],
+    defaultValue: 'starter',
+  },
+  token: {
+    type: DataTypes.STRING,
+    defaultValue: null,
+  },
 });
 
-// User.sync();
+// User.sync({ alter: true });
 
 export default User;
