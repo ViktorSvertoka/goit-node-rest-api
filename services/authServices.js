@@ -1,8 +1,11 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 import User from '../db/models/User.js';
 
 import HttpError from '../helpers/HttpError.js';
+
+const { JWT_SECRET } = process.env;
 
 export const signupUser = async data => {
   const { email, password } = data;
@@ -41,7 +44,13 @@ export const signinUser = async data => {
     throw HttpError(401, 'Email or password invalid...');
   }
 
-  const token = 'fffd';
+  const payload = {
+    email,
+  };
+
+  const token = jwt.sign(payload, JWT_SECRET, {
+    expiresIn: '24h',
+  });
 
   return { token };
 };
