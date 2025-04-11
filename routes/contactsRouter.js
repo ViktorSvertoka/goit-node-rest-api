@@ -14,6 +14,8 @@ import {
   updateFavoriteSchema,
 } from '../schemas/contactsSchemas.js';
 
+import isEmptyBody from '../middlewares/isEmptyBody.js';
+
 const contactsRouter = express.Router();
 
 contactsRouter.get('/', getContactsController);
@@ -22,12 +24,14 @@ contactsRouter.get('/:id', getContactByIdController);
 
 contactsRouter.post(
   '/',
+  isEmptyBody,
   validateBody(createContactSchema),
   addContactController
 );
 
 contactsRouter.put(
   '/:id',
+  isEmptyBody,
   validateBody(updateContactSchema),
   updateContactController
 );
