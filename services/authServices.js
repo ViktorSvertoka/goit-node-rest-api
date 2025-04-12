@@ -7,6 +7,13 @@ import HttpError from '../helpers/HttpError.js';
 
 const { JWT_SECRET } = process.env;
 
+export const findUser = query =>
+  User.findOne({
+    where: {
+      email,
+    },
+  });
+
 export const signupUser = async data => {
   const { email, password } = data;
 
