@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 
-import HttpError from '../helpers/HttpError';
+import HttpError from '../helpers/HttpError.js';
 
-import { findUser } from '../services/authServices';
+import { findUser } from '../services/authServices.js';
 
 const { JWT_SECRET } = process.env;
 
@@ -23,6 +23,7 @@ const authenticate = async (req, res, next) => {
     if (!user) {
       return next(HttpError(401, `User with email=${email} not found`));
     }
+    req.user = user;
     next();
   } catch (error) {
     next(HttpError(401, error.message));
