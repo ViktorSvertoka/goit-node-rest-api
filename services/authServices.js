@@ -9,12 +9,10 @@ const { JWT_SECRET } = process.env;
 
 export const findUser = query =>
   User.findOne({
-    where: {
-      email,
-    },
+    where: query,
   });
 
-export const signupUser = async data => {
+export const registerUser = async data => {
   const { email, password } = data;
 
   const user = await User.findOne({
@@ -32,7 +30,7 @@ export const signupUser = async data => {
   return User.create({ ...data, password: hashPassword });
 };
 
-export const signinUser = async data => {
+export const loginUser = async data => {
   const { email, password } = data;
 
   const user = await User.findOne({
