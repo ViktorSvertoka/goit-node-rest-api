@@ -4,11 +4,7 @@ import { sequelize } from '../Sequelize.js';
 
 import { emailRegexp } from '../../constants/regexp.js';
 
-const User = sequelize.define('User', {
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+const User = sequelize.define('user', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
