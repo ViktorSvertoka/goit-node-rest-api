@@ -7,7 +7,7 @@ import {
   deleteContactController,
   updateStatusContactController,
 } from '../controllers/contactsControllers.js';
-import validateBody from '../helpers/validateBody.js';
+import validateBody from '../decorators/validateBody.js';
 import {
   createContactSchema,
   updateContactSchema,
