@@ -59,3 +59,12 @@ export const loginUser = async data => {
 
   return { token };
 };
+
+export const logoutUser = async id => {
+  const user = await findUser({ id });
+  if (!user || !user.token) {
+    throw HttpError(404, 'User not found');
+  }
+
+  await user.update({ token: null });
+};
