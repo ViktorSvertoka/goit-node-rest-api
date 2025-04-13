@@ -1,4 +1,7 @@
 import express from 'express';
+
+import authenticate from '../middlewares/authenticate.js';
+
 import {
   getContactsController,
   getContactByIdController,
@@ -7,7 +10,9 @@ import {
   deleteContactController,
   updateStatusContactController,
 } from '../controllers/contactsControllers.js';
+
 import validateBody from '../decorators/validateBody.js';
+
 import {
   createContactSchema,
   updateContactSchema,
@@ -17,6 +22,8 @@ import {
 import isEmptyBody from '../middlewares/isEmptyBody.js';
 
 const contactsRouter = express.Router();
+
+contactsRouter.use(authenticate);
 
 contactsRouter.get('/', getContactsController);
 
