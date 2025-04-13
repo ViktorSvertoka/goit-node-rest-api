@@ -1,11 +1,10 @@
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 
 import User from '../db/models/User.js';
 
 import HttpError from '../helpers/HttpError.js';
 
-const { JWT_SECRET } = process.env;
+import { generateToken } from '../helpers/jwt.js';
 
 export const findUser = query =>
   User.findOne({
@@ -40,22 +39,22 @@ export const loginUser = async data => {
   });
 
   if (!user) {
-    throw HttpError(401, 'Email or password invalid...');
+    throw HttpError(401, 'Email or password invalid');
   }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
 
   if (!passwordCompare) {
-    throw HttpError(401, 'Email or password invalid...');
+    throw HttpError(401, 'Email or password invalid');
   }
 
   const payload = {
     email,
   };
 
-  const token = jwt.sign(payload, JWT_SECRET, {
-    expiresIn: '24h',
-  });
+  const token = generateToken(payload);
+
+  await user.update({ token });
 
   return { token };
 };
