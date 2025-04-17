@@ -1,7 +1,6 @@
 import express from 'express';
 
 import authenticate from '../middlewares/authenticate.js';
-import upload from '../middlewares/upload.js';
 
 import {
   getContactsController,
@@ -30,16 +29,8 @@ contactsRouter.get('/', getContactsController);
 
 contactsRouter.get('/:id', getContactByIdController);
 
-// upload.fields([
-//   { name: 'avatar', maxCount: 1 },
-//   { name: 'subAvatars', maxCount: 2 },
-// ]);
-
-// upload.array('avatar', 8);
-
 contactsRouter.post(
   '/',
-  upload.single('avatar'),
   isEmptyBody,
   validateBody(createContactSchema),
   addContactController
