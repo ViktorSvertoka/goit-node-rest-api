@@ -1,14 +1,28 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import * as authServices from '../services/authServices.js';
 
 import ctrlWrapper from '../decorators/ctrlWrapper.js';
 
+const avatarsDir = path.resolve('public', 'avatars');
+// console.log(avatarsDir);
+
 const registerController = async (req, res) => {
+  let avatarURL = null;
+  if (req.file) {
+    const { path: oldPath, filename } = req.file;
+    const newPath = path.join(avatarsDir, filename);
+    await fs.rename(oldPath, newPath);
+    avatarURL = path.join('avatar', 'avatars', filename);
+  }
   const { email, subscription } = await authServices.registerUser(req.body);
 
   res.status(201).json({
     user: {
       email,
       subscription,
+      avatarURL,
     },
   });
 };
