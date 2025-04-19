@@ -30,7 +30,8 @@
 ├── README.md
 ├── app.js
 ├── assets
-    └── .gitkeep
+    ├── .gitkeep
+    └── avatar.png
 ├── constants
     └── regexp.js
 ├── controllers
@@ -50,16 +51,23 @@
     └── jwt.js
 ├── middlewares
     ├── authenticate.js
-    └── isEmptyBody.js
+    ├── isEmptyBody.js
+    └── upload.js
 ├── package-lock.json
 ├── package.json
+├── public
+    └── avatars
+    │   ├── .gitkeep
+    │   └── 15_1745181144058_avatar.png
 ├── routes
     ├── authRouter.js
     └── contactsRouter.js
 ├── schemas
     ├── authSchemas.js
     └── contactsSchemas.js
-└── services
+├── services
     ├── authServices.js
     └── contactsServices.js
+└── temp
+    └── .gitkeep
 ```
