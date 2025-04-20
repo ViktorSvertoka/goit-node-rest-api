@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
+import chalk from 'chalk';
 
 dotenv.config();
 
@@ -21,9 +22,11 @@ const sequelize = new Sequelize({
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connection successful');
+    console.log(chalk.green('✅ Database connection successful!'));
   } catch (error) {
-    console.error(`❌ Error connection to database: ${error.message}`);
+    console.error(
+      chalk.red(`❌ Error connection to database: ${error.message}...`)
+    );
     process.exit(1);
   }
 };
