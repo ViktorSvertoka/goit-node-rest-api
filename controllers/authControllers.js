@@ -1,22 +1,12 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-
 import * as authServices from '../services/authServices.js';
-
 import ctrlWrapper from '../decorators/ctrlWrapper.js';
 
-const avatarsDir = path.resolve('public', 'avatars');
-// console.log(avatarsDir);
-
-const registerController = async (req, res) => {
-  let avatarURL = null;
-  if (req.file) {
-    const { path: oldPath, filename } = req.file;
-    const newPath = path.join(avatarsDir, filename);
-    await fs.rename(oldPath, newPath);
-    avatarURL = path.join('avatar', 'avatars', filename);
-  }
-  const { email, subscription } = await authServices.registerUser(req.body);
+export const registerController = ctrlWrapper(async (req, res) => {
+  const { email, subscription, avatarURL } = await authServices.registerUser(
+    req.body
+  );
 
   res.status(201).json({
     user: {
@@ -25,35 +15,62 @@ const registerController = async (req, res) => {
       avatarURL,
     },
   });
-};
+});
 
-const loginController = async (req, res) => {
+export const loginController = ctrlWrapper(async (req, res) => {
   const { token, user } = await authServices.loginUser(req.body);
 
   res.json({ token, user });
-};
+});
 
-const logoutController = async (req, res) => {
+export const logoutController = ctrlWrapper(async (req, res) => {
   const { id } = req.user;
   await authServices.logoutUser(id);
 
   res.status(204).json({
     message: 'Logout successfully',
   });
-};
+});
 
-const getCurrentController = (req, res) => {
+export const getCurrentController = ctrlWrapper((req, res) => {
   const { email, subscription } = req.user;
 
   res.json({
     email,
     subscription,
   });
-};
+});
 
-export default {
-  registerController: ctrlWrapper(registerController),
-  loginController: ctrlWrapper(loginController),
-  logoutController: ctrlWrapper(logoutController),
-  getCurrentController: ctrlWrapper(getCurrentController),
-};
+export const updateAvatar = ctrlWrapper(async (req, res) => {
+  const { id, avatarURL: oldAvatarURL } = req.user;
+
+  if (!req.file) {
+    throw HttpError(400, 'Avatar file is required');
+  }
+
+  const { path: tempPath, originalname } = req.file;
+  const timestamp = Date.now();
+  const fileName = `${id}_${timestamp}_${originalname}`;
+
+  const avatarsDir = path.resolve('public', 'avatars');
+  const finalPath = path.join(avatarsDir, fileName);
+
+  if (oldAvatarURL) {
+    const oldFileName = path.basename(oldAvatarURL);
+    if (oldFileName !== fileName) {
+      const oldFilePath = path.join(avatarsDir, oldFileName);
+      try {
+        await fs.unlink(oldFilePath);
+      } catch (error) {
+        console.log(`Failed to delete old avatar: ${error.message}`);
+      }
+    }
+  }
+
+  await fs.rename(tempPath, finalPath);
+
+  const newAvatarURL = `/avatars/${fileName}`;
+  await authServices.updateUser(id, { avatarURL: newAvatarURL });
+
+  res.status(200).json({ avatarURL: newAvatarURL });
+});

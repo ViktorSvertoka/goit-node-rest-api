@@ -1,6 +1,5 @@
 import multer from 'multer';
 import path from 'node:path';
-
 import HttpError from '../helpers/HttpError.js';
 
 const tempDir = path.resolve('temp');

@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
-
 import { sequelize } from '../Sequelize.js';
-
 import { emailRegexp } from '../../constants/regexp.js';
 
 const User = sequelize.define(

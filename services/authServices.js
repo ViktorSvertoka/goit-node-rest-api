@@ -1,9 +1,7 @@
 import bcrypt from 'bcrypt';
-
+import gravatar from 'gravatar';
 import User from '../db/models/User.js';
-
 import HttpError from '../helpers/HttpError.js';
-
 import { generateToken } from '../helpers/jwt.js';
 
 export const findUser = query =>
@@ -26,7 +24,9 @@ export const registerUser = async data => {
 
   const hashPassword = await bcrypt.hash(password, 10);
 
-  return User.create({ ...data, password: hashPassword });
+  const avatarURL = gravatar.url(email, { s: '250', d: 'retro' }, true);
+
+  return User.create({ ...data, password: hashPassword, avatarURL });
 };
 
 export const loginUser = async data => {
@@ -66,4 +66,14 @@ export const logoutUser = async id => {
   }
 
   await user.update({ token: null });
+};
+
+export const updateUser = async (id, data) => {
+  const user = await User.findByPk(id);
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+
+  await user.update(data);
+  return user;
 };
