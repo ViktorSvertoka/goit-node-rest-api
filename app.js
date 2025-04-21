@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import 'dotenv/config';
 import contactsRouter from './routes/contactsRouter.js';
 import authRouter from './routes/authRouter.js';
-import { sequelize, connectDB } from './db/Sequelize.js';
+import { connectDB } from './db/Sequelize.js';
 
 const app = express();
 

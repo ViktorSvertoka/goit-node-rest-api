@@ -68,7 +68,7 @@ export const logoutUser = async id => {
   await user.update({ token: null });
 };
 
-export const updateUser = async (id, data) => {
+export const updateUserAvatar = async (id, data) => {
   const user = await User.findByPk(id);
   if (!user) {
     throw HttpError(404, 'User not found');
