@@ -1,12 +1,15 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import * as authServices from '../services/authServices.js';
 import ctrlWrapper from '../decorators/ctrlWrapper.js';
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+  updateUserAvatar,
+} from '../services/authServices.js';
 
 export const registerController = ctrlWrapper(async (req, res) => {
-  const { email, subscription, avatarURL } = await authServices.registerUser(
-    req.body
-  );
+  const { email, subscription, avatarURL } = await registerUser(req.body);
 
   res.status(201).json({
     user: {
@@ -18,14 +21,14 @@ export const registerController = ctrlWrapper(async (req, res) => {
 });
 
 export const loginController = ctrlWrapper(async (req, res) => {
-  const { token, user } = await authServices.loginUser(req.body);
+  const { token, user } = await loginUser(req.body);
 
   res.json({ token, user });
 });
 
 export const logoutController = ctrlWrapper(async (req, res) => {
   const { id } = req.user;
-  await authServices.logoutUser(id);
+  await logoutUser(id);
 
   res.status(204).json({
     message: 'Logout successfully',
@@ -42,11 +45,15 @@ export const getCurrentController = ctrlWrapper((req, res) => {
 });
 
 export const updateAvatar = ctrlWrapper(async (req, res) => {
-  const { id, avatarURL: oldAvatarURL } = req.user;
+  if (!req.user) {
+    throw HttpError(401, 'Not authorized');
+  }
 
   if (!req.file) {
     throw HttpError(400, 'Avatar file is required');
   }
+
+  const { id, avatarURL: oldAvatarURL } = req.user;
 
   const { path: tempPath, originalname } = req.file;
   const timestamp = Date.now();
@@ -70,7 +77,7 @@ export const updateAvatar = ctrlWrapper(async (req, res) => {
   await fs.rename(tempPath, finalPath);
 
   const newAvatarURL = `/avatars/${fileName}`;
-  await authServices.updateUser(id, { avatarURL: newAvatarURL });
+  await updateUserAvatar(id, { avatarURL: newAvatarURL });
 
   res.status(200).json({ avatarURL: newAvatarURL });
 });
