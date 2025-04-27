@@ -6,10 +6,16 @@ import {
   loginController,
   logoutController,
   getCurrentController,
-  updateAvatar,
+  updateAvatarController,
+  verifyController,
+  resendVerificationController,
 } from '../controllers/authControllers.js';
 import validateBody from '../decorators/validateBody.js';
-import { authRegisterSchema, authLoginSchema } from '../schemas/authSchemas.js';
+import {
+  authRegisterSchema,
+  authLoginSchema,
+  emailSchema,
+} from '../schemas/authSchemas.js';
 
 const authRouter = express.Router();
 
@@ -18,6 +24,14 @@ authRouter.post(
   upload.single('avatar'),
   validateBody(authRegisterSchema),
   registerController
+);
+
+authRouter.get('/verify/:verificationCode', verifyController);
+
+authRouter.post(
+  '/verify',
+  validateBody(emailSchema),
+  resendVerificationController
 );
 
 authRouter.post('/login', validateBody(authLoginSchema), loginController);
@@ -30,7 +44,7 @@ authRouter.patch(
   '/avatars',
   authenticate,
   upload.single('avatar'),
-  updateAvatar
+  updateAvatarController
 );
 
 export default authRouter;

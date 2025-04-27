@@ -1,8 +1,18 @@
 import bcrypt from 'bcrypt';
 import gravatar from 'gravatar';
+import { nanoid } from 'nanoid';
 import User from '../db/models/User.js';
 import HttpError from '../helpers/HttpError.js';
 import { generateToken } from '../helpers/jwt.js';
+import sendEmail from '../helpers/sendEmail.js';
+
+const { APP_DOMAIN } = process.env;
+
+const createVerifyEmail = (email, verificationCode) => ({
+  to: email,
+  subject: 'Verify email',
+  html: `<a href="${APP_DOMAIN}/api/auth/verify/${verificationCode}" target="_blank">Click verify email</a>`,
+});
 
 export const findUser = query =>
   User.findOne({
@@ -11,7 +21,6 @@ export const findUser = query =>
 
 export const registerUser = async data => {
   const { email, password } = data;
-
   const user = await User.findOne({
     where: {
       email,
@@ -23,10 +32,21 @@ export const registerUser = async data => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10);
-
   const avatarURL = gravatar.url(email, { s: '250', d: 'retro' }, true);
+  const verificationCode = nanoid();
 
-  return User.create({ ...data, password: hashPassword, avatarURL });
+  const newUser = await User.create({
+    ...data,
+    password: hashPassword,
+    avatarURL,
+    verificationCode,
+  });
+
+  const verifyEmail = createVerifyEmail(email, verificationCode);
+
+  await sendEmail(verifyEmail);
+
+  return newUser;
 };
 
 export const loginUser = async data => {
@@ -40,6 +60,10 @@ export const loginUser = async data => {
 
   if (!user) {
     throw HttpError(401, 'Email or password invalid');
+  }
+
+  if (!user.verify) {
+    throw HttpError(401, 'Email not verified');
   }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
@@ -76,4 +100,29 @@ export const updateUserAvatar = async (id, data) => {
 
   await user.update(data);
   return user;
+};
+
+export const verifyUser = async verificationCode => {
+  const user = await findUser({ verificationCode });
+  if (!user) {
+    throw HttpError(404, 'User not found');
+  }
+
+  await user.update({ verificationCode: null, verify: true });
+};
+
+export const resendVerification = async email => {
+  const user = await findUser({ email });
+
+  if (!user) {
+    throw HttpError(404, 'Email not found');
+  }
+
+  if (user.verify) {
+    throw HttpError(400, 'Verification has already been passed');
+  }
+
+  const verifyEmail = createVerifyEmail(email, user.verificationCode);
+
+  await sendEmail(verifyEmail);
 };

@@ -6,6 +6,8 @@ import {
   loginUser,
   logoutUser,
   updateUserAvatar,
+  verifyUser,
+  resendVerification,
 } from '../services/authServices.js';
 
 export const registerController = ctrlWrapper(async (req, res) => {
@@ -44,7 +46,7 @@ export const getCurrentController = ctrlWrapper((req, res) => {
   });
 });
 
-export const updateAvatar = ctrlWrapper(async (req, res) => {
+export const updateAvatarController = ctrlWrapper(async (req, res) => {
   if (!req.user) {
     throw HttpError(401, 'Not authorized');
   }
@@ -80,4 +82,27 @@ export const updateAvatar = ctrlWrapper(async (req, res) => {
   await updateUserAvatar(id, { avatarURL: newAvatarURL });
 
   res.status(200).json({ avatarURL: newAvatarURL });
+});
+
+export const verifyController = ctrlWrapper(async (req, res) => {
+  const { verificationCode } = req.params;
+  await verifyUser(verificationCode);
+
+  res.status(200).json({
+    message: 'Email verification successfully',
+  });
+});
+
+export const resendVerificationController = ctrlWrapper(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw HttpError(400, 'missing required field email');
+  }
+
+  await resendVerification(email);
+
+  res.status(200).json({
+    message: 'Verification email sent',
+  });
 });
