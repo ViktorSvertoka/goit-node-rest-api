@@ -89,7 +89,7 @@ export const verifyController = ctrlWrapper(async (req, res) => {
   await verifyUser(verificationCode);
 
   res.status(200).json({
-    message: 'Email verification successfully',
+    message: 'Verification successful',
   });
 });
 
